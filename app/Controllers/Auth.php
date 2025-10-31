@@ -18,21 +18,37 @@ class Auth extends BaseController
 
     public function loginProcess()
     {
-        // STATIC MODE - Skip validation and database, just set session and redirect
+        // Get form inputs
         $email = $this->request->getPost('email');
         $password = $this->request->getPost('password');
 
-        // Set session data for static display
+        // Load UserModel
+        $userModel = new \App\Models\UserModel();
+
+        // Find user by email
+        $user = $userModel->where('Email', $email)->first();
+
+        if (!$user) {
+            return redirect()->back()->withInput()->with('error', 'Invalid email or password');
+        }
+
+        // Verify password (assuming passwords are hashed)
+        // If passwords are stored as plain text (not recommended), use: if ($password !== $user['Password'])
+        if (!password_verify($password, $user['Password'])) {
+            return redirect()->back()->withInput()->with('error', 'Invalid email or password');
+        }
+
+        // Set session data with actual user information
         $session = session();
         $session->set([
-            'user_id' => 1,
-            'email' => $email ?: 'user@example.com',
-            'full_name' => 'Demo User',
+            'user_id' => $user['UserID'],
+            'email' => $user['Email'],
+            'full_name' => $user['Username'],
             'logged_in' => true
         ]);
 
-        // Redirect directly to dashboard/home
-        return redirect()->to('/dashboard');
+        // Redirect to home
+        return redirect()->to('/home');
     }
 
     public function signup()
@@ -49,14 +65,15 @@ class Auth extends BaseController
         // Validate input
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'fullname' => 'required|min_length[3]|max_length[255]',
-            'email' => 'required|valid_email|is_unique[users.email]',
+            'username' => 'required|min_length[3]|max_length[255]|is_unique[users.Username]',
+            'email' => 'required|valid_email|is_unique[users.Email]',
             'password' => 'required|min_length[6]',
             'confirm_password' => 'required|matches[password]'
         ], [
-            'fullname' => [
-                'required' => 'Full name is required',
-                'min_length' => 'Full name must be at least 3 characters'
+            'username' => [
+                'required' => 'Username is required',
+                'min_length' => 'Username must be at least 3 characters',
+                'is_unique' => 'This username is already taken'
             ],
             'email' => [
                 'required' => 'Email is required',
@@ -80,9 +97,9 @@ class Auth extends BaseController
 
         // Prepare user data
         $userData = [
-            'full_name' => $this->request->getPost('fullname'),
-            'email' => $this->request->getPost('email'),
-            'password' => $this->request->getPost('password')
+            'Username' => $this->request->getPost('username'),
+            'Email' => $this->request->getPost('email'),
+            'Password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT)
         ];
 
         // Insert user into database

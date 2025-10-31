@@ -3,7 +3,7 @@
 $uri = service('uri');
 $segment = $uri->getSegment(1);
 if (empty($segment)) {
-    $segment = 'dashboard';
+    $segment = 'home';
 }
 ?>
 <div class="sidebar">
@@ -18,7 +18,7 @@ if (empty($segment)) {
 
         <ul class="menu">
             <li>
-                <a href="<?= base_url('dashboard') ?>" class="<?= ($segment == 'dashboard') ? 'active' : '' ?>">
+                <a href="<?= base_url('home') ?>" class="<?= ($segment == 'home' || $segment == 'dashboard') ? 'active' : '' ?>">
                     <i class='bx bxs-home'></i> Home
                 </a>
             </li>
@@ -44,7 +44,22 @@ if (empty($segment)) {
         <a href="<?= base_url('settings') ?>" class="setting <?= ($segment == 'settings') ? 'active' : '' ?>">
             <i class='bx bx-cog'></i> Setting
         </a>
-        <a href="<?= base_url('logout') ?>" class="logout"><i class='bx bx-log-out'></i> Log Out</a>
+        <a href="<?= base_url('logout') ?>" class="logout" onclick="showLogoutModal(event)"><i class='bx bx-log-out'></i> Log Out</a>
+    </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="logout-modal">
+    <div class="logout-modal-content">
+        <div class="logout-modal-icon">
+            <i class='bx bx-log-out'></i>
+        </div>
+        <h3>Confirm Logout</h3>
+        <p>Are you sure you want to log out?</p>
+        <div class="logout-modal-buttons">
+            <button class="logout-btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+            <button class="logout-btn-confirm" onclick="confirmLogout()">Log Out</button>
+        </div>
     </div>
 </div>
 
@@ -277,9 +292,173 @@ if (empty($segment)) {
     .menu a.active {
         animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
+
+    /* ===== LOGOUT MODAL ===== */
+    .logout-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .logout-modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .logout-modal-content {
+        background: linear-gradient(145deg, #ffffff, #f5f5f5);
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        max-width: 400px;
+        width: 90%;
+        animation: slideUp 0.3s ease;
+    }
+
+    body.dark-mode .logout-modal-content {
+        background: linear-gradient(145deg, #16213e, #1a1a2e);
+    }
+
+    .logout-modal-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, #d94fff, #9c4fff);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .logout-modal-icon i {
+        font-size: 40px;
+        color: white;
+    }
+
+    .logout-modal-content h3 {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 10px 0;
+        color: #222;
+    }
+
+    body.dark-mode .logout-modal-content h3 {
+        color: #e0e0e0;
+    }
+
+    .logout-modal-content p {
+        font-size: 16px;
+        color: #666;
+        margin: 0 0 30px 0;
+    }
+
+    body.dark-mode .logout-modal-content p {
+        color: #b8b8b8;
+    }
+
+    .logout-modal-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .logout-modal-buttons button {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .logout-btn-cancel {
+        background: #e0e0e0;
+        color: #333;
+    }
+
+    body.dark-mode .logout-btn-cancel {
+        background: #2d3748;
+        color: #e0e0e0;
+    }
+
+    .logout-btn-cancel:hover {
+        background: #d0d0d0;
+        transform: translateY(-2px);
+    }
+
+    body.dark-mode .logout-btn-cancel:hover {
+        background: #3d4758;
+    }
+
+    .logout-btn-confirm {
+        background: linear-gradient(135deg, #d94fff, #9c4fff);
+        color: white;
+    }
+
+    .logout-btn-confirm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(217, 79, 255, 0.4);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
 </style>
 
 <script>
+    // Show logout modal
+    function showLogoutModal(event) {
+        event.preventDefault();
+        document.getElementById('logoutModal').classList.add('show');
+    }
+
+    // Close logout modal
+    function closeLogoutModal() {
+        document.getElementById('logoutModal').classList.remove('show');
+    }
+
+    // Confirm logout
+    function confirmLogout() {
+        window.location.href = '<?= base_url('logout') ?>';
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('logoutModal');
+        if (event.target === modal) {
+            closeLogoutModal();
+        }
+    });
+
     // Load theme on page load
     (function() {
         const savedTheme = localStorage.getItem('theme') || 'light';

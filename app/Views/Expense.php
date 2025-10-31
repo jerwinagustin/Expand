@@ -436,7 +436,7 @@
             <div class="balance-tran">
                 <div class="line"></div>
                 <div class="content">
-                    <h2>₱ 0.00</h2>
+                    <h2>₱ <?= number_format($availableBalance ?? 0, 2) ?></h2>
                     <p>Available Balance</p>
                 </div>
             </div>
@@ -449,7 +449,8 @@
                     <i class='bx bx-dots-vertical-rounded'></i>
                 </button>
                 <div class="dropdown-menu-custom" id="topMenu">
-                    <a href="#" class="add-btn" onclick="showAddButton()">Add</a>
+                    <a href="#" class="add-btn" onclick="showAddModal(event)">Add</a>
+                    <a href="#" class="add-btn" onclick="showExpendModal(event)">Expend</a>
                 </div>
             </div>
         </div>
@@ -458,72 +459,36 @@
             <span class="wallet-label">Expense</span>
 
             <div class="wallet-card">
-                <div class="expense-list">
-                    <!-- Expense Item 1: Foods -->
-                    <div class="expense-item">
-                        <div class="expense-left">
-                            <div class="expense-icon">
-                                <i class='bx bx-restaurant'></i>
+                <div class="expense-list" id="expenseList">
+                    <?php if (!empty($categories)): ?>
+                        <?php foreach ($categories as $index => $category): ?>
+                            <div class="expense-item <?= $index === 0 ? 'active' : '' ?>" data-category-id="<?= $category['CategoryID'] ?>">
+                                <div class="expense-left">
+                                    <div class="expense-icon">
+                                        <i class='bx <?= esc($category['Icon']) ?>'></i>
+                                    </div>
+                                    <div class="expense-details">
+                                        <h3><?= esc(strtoupper($category['CategoryName'])) ?></h3>
+                                        <p>Budget: ₱<?= number_format($category['Budget'], 2) ?> | Spent: ₱<?= number_format($category['TotalSpent'], 2) ?></p>
+                                    </div>
+                                </div>
+                                <div class="expense-menu">
+                                    <button class="menu-dots" onclick="toggleDropdown(event, 'menu<?= $category['CategoryID'] ?>')">
+                                        <i class='bx bx-dots-vertical-rounded'></i>
+                                    </button>
+                                    <div class="dropdown-menu-custom" id="menu<?= $category['CategoryID'] ?>">
+                                        <a href="#" onclick="editCategory(event, <?= $category['CategoryID'] ?>)">Edit</a>
+                                        <a href="#" onclick="deleteCategory(event, <?= $category['CategoryID'] ?>)">Delete</a>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="expense-details">
-                                <h3>FOODS</h3>
-                                <p>Budget: 2,000.00</p>
-                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="text-center py-4" style="color: var(--text-secondary);">
+                            <i class='bx bx-wallet' style="font-size: 48px;"></i>
+                            <p>No expense categories yet. Click "Add" to create one.</p>
                         </div>
-                        <div class="expense-menu">
-                            <button class="menu-dots" onclick="toggleDropdown(event, 'menu1')">
-                                <i class='bx bx-dots-vertical-rounded'></i>
-                            </button>
-                            <div class="dropdown-menu-custom" id="menu1">
-                                <a href="#">Edit</a>
-                                <a href="#">Delete</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Expense Item 2: Bills (Active) -->
-                    <div class="expense-item active">
-                        <div class="expense-left">
-                            <div class="expense-icon">
-                                <i class='bx bx-receipt'></i>
-                            </div>
-                            <div class="expense-details">
-                                <h3>BILLS</h3>
-                                <p>Budget: 6,000.00</p>
-                            </div>
-                        </div>
-                        <div class="expense-menu">
-                            <button class="menu-dots" onclick="toggleDropdown(event, 'menu2')">
-                                <i class='bx bx-dots-vertical-rounded'></i>
-                            </button>
-                            <div class="dropdown-menu-custom" id="menu2">
-                                <a href="#">Edit</a>
-                                <a href="#">Delete</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Expense Item 3: Transportation -->
-                    <div class="expense-item">
-                        <div class="expense-left">
-                            <div class="expense-icon">
-                                <i class='bx bx-bus'></i>
-                            </div>
-                            <div class="expense-details">
-                                <h3>TRANSPORTATION</h3>
-                                <p>Clothing items that consistently lead our sales charts.</p>
-                            </div>
-                        </div>
-                        <div class="expense-menu">
-                            <button class="menu-dots" onclick="toggleDropdown(event, 'menu3')">
-                                <i class='bx bx-dots-vertical-rounded'></i>
-                            </button>
-                            <div class="dropdown-menu-custom" id="menu3">
-                                <a href="#">Edit</a>
-                                <a href="#">Delete</a>
-                            </div>
-                        </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -531,10 +496,100 @@
             <div class="wallet-date">
                 <div class="date-range">
                     <i class='bx bx-calendar'></i>
-                    <input type="date" id="from-date" value="2030-07-25">
+                    <input type="date" id="from-date" value="<?= esc($startDate ?? date('Y-m-01')) ?>" onchange="filterByDate()">
                     <span>To</span>
                     <i class='bx bx-calendar'></i>
-                    <input type="date" id="to-date" value="2030-07-29">
+                    <input type="date" id="to-date" value="<?= esc($endDate ?? date('Y-m-t')) ?>" onchange="filterByDate()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Category Modal -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                    <h5 class="modal-title" id="categoryModalLabel">Add Expense Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="categoryForm">
+                        <input type="hidden" id="categoryId" name="categoryId">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Category Name</label>
+                            <input type="text" class="form-control" id="categoryName" name="categoryName" required
+                                style="background-color: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                        </div>
+                        <div class="mb-3">
+                            <label for="budget" class="form-label">Budget (₱)</label>
+                            <input type="number" step="0.01" class="form-control" id="budget" name="budget" required
+                                style="background-color: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                        </div>
+                        <div class="mb-3">
+                            <label for="icon" class="form-label">Icon (Boxicons class)</label>
+                            <input type="text" class="form-control" id="icon" name="icon" placeholder="e.g., bx-restaurant"
+                                style="background-color: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                            <small class="form-text" style="color: var(--text-secondary);">Browse icons at <a href="https://boxicons.com/" target="_blank" style="color: #9c4fff;">boxicons.com</a></small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"
+                                style="background-color: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveCategory()" style="background: linear-gradient(135deg, #d94fff, #9c4fff); border: none;">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expend Modal -->
+    <div class="modal fade" id="expendModal" tabindex="-1" aria-labelledby="expendModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                    <h5 class="modal-title" id="expendModalLabel">Record Expense</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="expendForm">
+                        <div class="mb-3">
+                            <label for="expenseCategory" class="form-label">Category</label>
+                            <select class="form-select" id="expenseCategory" name="categoryId" required
+                                style="background-color: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                                <option value="">Select a category</option>
+                                <?php if (!empty($categories)): ?>
+                                    <?php foreach ($categories as $cat): ?>
+                                        <option value="<?= $cat['CategoryID'] ?>"><?= esc($cat['CategoryName']) ?> (Budget: ₱<?= number_format($cat['Budget'], 2) ?>)</option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="expenseAmount" class="form-label">Amount (₱)</label>
+                            <input type="number" step="0.01" class="form-control" id="expenseAmount" name="amount" required
+                                style="background-color: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                        </div>
+                        <div class="mb-3">
+                            <label for="expenseDate" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="expenseDate" name="expenseDate" value="<?= date('Y-m-d') ?>" required
+                                style="background-color: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                        </div>
+                        <div class="mb-3">
+                            <label for="expenseDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="expenseDescription" name="description" rows="2"
+                                style="background-color: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);"
+                                placeholder="What did you spend on?"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveExpense()" style="background: linear-gradient(135deg, #d94fff, #9c4fff); border: none;">Save</button>
                 </div>
             </div>
         </div>
@@ -544,6 +599,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // Base URL for AJAX requests
+        const baseUrl = '<?= base_url() ?>';
+        const csrfToken = '<?= csrf_token() ?>';
+        const csrfHash = '<?= csrf_hash() ?>';
+
         // Toggle dropdown menu for expense items
         function toggleDropdown(event, menuId) {
             event.stopPropagation();
@@ -570,15 +630,229 @@
             menu.classList.toggle('show');
         }
 
-        // Show add button functionality
-        function showAddButton() {
-            alert('Add functionality will be implemented');
+        // Show add modal
+        function showAddModal(event) {
+            event.preventDefault();
+            document.getElementById('categoryModalLabel').textContent = 'Add Expense Category';
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryId').value = '';
+            const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+            modal.show();
+        }
+
+        // Show expend modal
+        function showExpendModal(event) {
+            event.preventDefault();
+            document.getElementById('expendForm').reset();
+            const modal = new bootstrap.Modal(document.getElementById('expendModal'));
+            modal.show();
+        }
+
+        // Save expense (expend)
+        function saveExpense() {
+            const formData = new FormData();
+
+            const categoryId = document.getElementById('expenseCategory').value;
+            const amount = document.getElementById('expenseAmount').value;
+            const expenseDate = document.getElementById('expenseDate').value;
+            const description = document.getElementById('expenseDescription').value;
+
+            if (!categoryId || !amount || !expenseDate) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            console.log('Expense Data:', {
+                categoryId,
+                amount,
+                expenseDate,
+                description
+            });
+
+            formData.append('categoryId', categoryId);
+            formData.append('amount', amount);
+            formData.append('expenseDate', expenseDate);
+            formData.append('description', description);
+            formData.append(csrfToken, csrfHash);
+
+            fetch(`${baseUrl}/expense/addExpense`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        alert(data.message);
+                        bootstrap.Modal.getInstance(document.getElementById('expendModal')).hide();
+
+                        // Preserve date filters when reloading
+                        const startDate = document.getElementById('from-date').value;
+                        const endDate = document.getElementById('to-date').value;
+                        window.location.href = `${baseUrl}/expense?start_date=${startDate}&end_date=${endDate}`;
+                    } else {
+                        alert(data.message || 'Operation failed');
+                        if (data.errors) {
+                            console.error('Validation errors:', data.errors);
+                            alert('Validation errors: ' + JSON.stringify(data.errors));
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while saving expense: ' + error.message);
+                });
+        }
+
+        // Edit category
+        function editCategory(event, categoryId) {
+            event.preventDefault();
+
+            fetch(`${baseUrl}/expense/get/${categoryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('categoryModalLabel').textContent = 'Edit Expense Category';
+                        document.getElementById('categoryId').value = data.category.CategoryID;
+                        document.getElementById('categoryName').value = data.category.CategoryName;
+                        document.getElementById('budget').value = data.category.Budget;
+                        document.getElementById('icon').value = data.category.Icon;
+                        document.getElementById('description').value = data.category.Description || '';
+
+                        const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+                        modal.show();
+                    } else {
+                        alert('Failed to load category details');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while loading category details');
+                });
+        }
+
+        // Save category (add or update)
+        function saveCategory() {
+            const categoryId = document.getElementById('categoryId').value;
+            const formData = new FormData();
+
+            const categoryName = document.getElementById('categoryName').value;
+            const budget = document.getElementById('budget').value;
+            const icon = document.getElementById('icon').value || 'bx-wallet';
+            const description = document.getElementById('description').value;
+
+            console.log('Form Data:', {
+                categoryName,
+                budget,
+                icon,
+                description
+            });
+
+            formData.append('categoryName', categoryName);
+            formData.append('budget', budget);
+            formData.append('icon', icon);
+            formData.append('description', description);
+            formData.append(csrfToken, csrfHash);
+
+            const url = categoryId ? `${baseUrl}/expense/update/${categoryId}` : `${baseUrl}/expense/add`;
+            console.log('Submitting to URL:', url);
+
+            fetch(url, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        alert(data.message);
+                        bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
+
+                        // Preserve date filters when reloading
+                        const startDate = document.getElementById('from-date').value;
+                        const endDate = document.getElementById('to-date').value;
+                        window.location.href = `${baseUrl}/expense?start_date=${startDate}&end_date=${endDate}`;
+                    } else {
+                        alert(data.message || 'Operation failed');
+                        if (data.errors) {
+                            console.error('Validation errors:', data.errors);
+                            alert('Validation errors: ' + JSON.stringify(data.errors));
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while saving category: ' + error.message);
+                });
+        }
+
+        // Delete category
+        function deleteCategory(event, categoryId) {
+            event.preventDefault();
+
+            if (!confirm('Are you sure you want to delete this category? All associated expenses will also be deleted.')) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append(csrfToken, csrfHash);
+
+            fetch(`${baseUrl}/expense/delete/${categoryId}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+
+                        // Preserve date filters when reloading
+                        const startDate = document.getElementById('from-date').value;
+                        const endDate = document.getElementById('to-date').value;
+                        window.location.href = `${baseUrl}/expense?start_date=${startDate}&end_date=${endDate}`;
+                    } else {
+                        alert(data.message || 'Failed to delete category');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting category');
+                });
+        }
+
+        // Filter by date range
+        function filterByDate() {
+            const startDate = document.getElementById('from-date').value;
+            const endDate = document.getElementById('to-date').value;
+
+            if (startDate && endDate) {
+                window.location.href = `${baseUrl}/expense?start_date=${startDate}&end_date=${endDate}`;
+            }
         }
 
         // Close dropdowns when clicking outside
         document.addEventListener('click', function() {
             document.querySelectorAll('.dropdown-menu-custom').forEach(menu => {
                 menu.classList.remove('show');
+            });
+        });
+
+        // Add click handler for expense items to toggle active state
+        document.querySelectorAll('.expense-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Don't toggle if clicking on menu
+                if (e.target.closest('.expense-menu')) return;
+
+                // Remove active from all items
+                document.querySelectorAll('.expense-item').forEach(i => i.classList.remove('active'));
+                // Add active to clicked item
+                this.classList.add('active');
             });
         });
     </script>

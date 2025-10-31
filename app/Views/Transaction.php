@@ -280,7 +280,7 @@
             <div class="balance-tran">
                 <div class="line"></div>
                 <div class="content">
-                    <h2>₱ 0.00</h2>
+                    <h2>₱ <?= number_format($availableBalance ?? 0, 2) ?></h2>
                     <p>AVAILABLE BALANCE</p>
                 </div>
             </div>
@@ -289,38 +289,44 @@
         <div class="wallet-section">
             <span class="wallet-label">Transaction History</span>
             <div class="transaction-box">
-                <div class="transaction">
-                    <div class="left-content">
-                        <p class="date-time">Oct 21, 2025</p>
-                        <p class="date-time">9:30 PM</p>
-                        <p class="desc">Send Money</p>
+                <?php if (!empty($transactions)): ?>
+                    <?php foreach ($transactions as $transaction): ?>
+                        <div class="transaction">
+                            <div class="left-content">
+                                <p class="date-time"><?= date('M d, Y', strtotime($transaction['TransactionDate'])) ?></p>
+                                <p class="date-time"><?= date('g:i A', strtotime($transaction['CreatedAt'])) ?></p>
+                                <p class="desc">
+                                    <?php if (!empty($transaction['CategoryName'])): ?>
+                                        <i class='bx <?= htmlspecialchars($transaction['Icon'] ?? 'bx-purchase-tag') ?>'></i>
+                                        <?= htmlspecialchars($transaction['CategoryName']) ?>
+                                        <?php if (!empty($transaction['Description'])): ?>
+                                            - <?= htmlspecialchars($transaction['Description']) ?>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <?= htmlspecialchars($transaction['Description'] ?? 'Transaction') ?>
+                                    <?php endif; ?>
+                                </p>
+                            </div>
+                            <p class="amount <?= $transaction['Type'] === 'income' ? 'positive' : 'negative' ?>">
+                                <?= $transaction['Type'] === 'income' ? '+' : '-' ?><?= number_format($transaction['Amount'], 2) ?>
+                            </p>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="transaction">
+                        <div class="left-content">
+                            <p class="desc" style="color: var(--text-muted);">No transactions yet. Start by adding your monthly balance or recording expenses.</p>
+                        </div>
                     </div>
-                    <p class="amount positive">+2,000.00</p>
-                </div>
-                <div class="transaction">
-                    <div class="left-content">
-                        <p class="date-time">Oct 11, 2025</p>
-                        <p class="date-time">10:50 PM</p>
-                        <p class="desc">Send Money</p>
-                    </div>
-                    <p class="amount negative">-500.00</p>
-                </div>
-                <div class="transaction">
-                    <div class="left-content">
-                        <p class="date-time">Oct 1, 2025</p>
-                        <p class="date-time">12:50 PM</p>
-                        <p class="desc">Send Money</p>
-                    </div>
-                    <p class="amount negative">-1000.00</p>
-                </div>
+                <?php endif; ?>
             </div>
             <div class="wallet-date">
                 <div class="date-range">
                     <i class='bx bx-calendar calendar-icon'></i>
-                    <input type="date" id="from-date" value="2030-07-25">
+                    <input type="date" id="from-date" value="<?= date('Y-m-01') ?>">
                     <span>To</span>
                     <i class='bx bx-calendar calendar-icon'></i>
-                    <input type="date" id="to-date" value="2030-07-29">
+                    <input type="date" id="to-date" value="<?= date('Y-m-t') ?>">
                 </div>
             </div>
         </div>

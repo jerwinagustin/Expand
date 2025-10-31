@@ -252,7 +252,7 @@
             <div class="balance-tran">
                 <div class="line"></div>
                 <div class="content">
-                    <h2>₱ 0.00</h2>
+                    <h2>₱ <?= number_format($availableBalance ?? 0, 2) ?></h2>
                     <p>Available Balance</p>
                 </div>
             </div>
@@ -264,10 +264,86 @@
             <div class="wallet-section">
                 <span class="wallet-label">Report</span>
 
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="wallet-card">
+                            <h6 style="color: var(--text-secondary); margin-bottom: 10px;">Total Budget</h6>
+                            <h3 style="color: var(--text-primary); margin: 0;">₱ <?= number_format($totalBudget ?? 0, 2) ?></h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="wallet-card">
+                            <h6 style="color: var(--text-secondary); margin-bottom: 10px;">Total Spent</h6>
+                            <h3 style="color: #d946ef; margin: 0;">₱ <?= number_format($totalSpent ?? 0, 2) ?></h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="wallet-card">
+                            <h6 style="color: var(--text-secondary); margin-bottom: 10px;">Remaining Budget</h6>
+                            <h3 style="color: <?= ($totalBudget - $totalSpent) < 0 ? '#ef4444' : '#22c55e' ?>; margin: 0;">
+                                ₱ <?= number_format(($totalBudget ?? 0) - ($totalSpent ?? 0), 2) ?>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expense Trend Chart -->
                 <div class="wallet-card">
-                    <div class="chart-title">Budget</div>
+                    <div class="chart-title">Expense Trend (Last 6 Months)</div>
                     <div class="chart-container">
                         <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Breakdown -->
+                <div class="wallet-card mt-4">
+                    <div class="chart-title">Category Breakdown</div>
+                    <div class="category-list">
+                        <?php if (!empty($categories)): ?>
+                            <?php foreach ($categories as $category): ?>
+                                <?php
+                                $percentage = $category['Budget'] > 0 ? ($category['TotalSpent'] / $category['Budget']) * 100 : 0;
+                                $isOverBudget = $category['TotalSpent'] > $category['Budget'];
+                                ?>
+                                <div class="category-item" style="margin-bottom: 20px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <i class='bx <?= htmlspecialchars($category['Icon']) ?>' style="font-size: 24px; color: #d946ef;"></i>
+                                            <span style="font-weight: 500; color: var(--text-primary);">
+                                                <?= htmlspecialchars($category['CategoryName']) ?>
+                                            </span>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <span style="color: var(--text-primary); font-weight: 600;">
+                                                ₱<?= number_format($category['TotalSpent'], 2) ?>
+                                            </span>
+                                            <span style="color: var(--text-secondary); font-size: 14px;">
+                                                / ₱<?= number_format($category['Budget'], 2) ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div style="background: var(--bg-primary); height: 10px; border-radius: 5px; overflow: hidden;">
+                                        <div style="background: <?= $isOverBudget ? '#ef4444' : '#d946ef' ?>; 
+                                                    height: 100%; 
+                                                    width: <?= min($percentage, 100) ?>%; 
+                                                    border-radius: 5px;
+                                                    transition: width 0.3s ease;">
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right; margin-top: 4px;">
+                                        <span style="font-size: 12px; color: <?= $isOverBudget ? '#ef4444' : 'var(--text-secondary)' ?>;">
+                                            <?= number_format($percentage, 1) ?>% used
+                                            <?= $isOverBudget ? ' (Over Budget!)' : '' ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p style="color: var(--text-muted); text-align: center; padding: 20px;">
+                                No expense categories yet. Create categories on the Expense page to see reports.
+                            </p>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -275,10 +351,10 @@
                 <div class="wallet-date">
                     <div class="date-range">
                         <i class='bx bx-calendar'></i>
-                        <input type="date" id="from-date" value="">
+                        <input type="date" id="from-date" value="<?= $startDate ?? date('Y-m-01') ?>">
                         <span>To</span>
                         <i class='bx bx-calendar'></i>
-                        <input type="date" id="to-date" value="">
+                        <input type="date" id="to-date" value="<?= $endDate ?? date('Y-m-t') ?>">
                     </div>
                 </div>
             </div>
@@ -317,13 +393,17 @@
         const ctx = document.getElementById('expenseChart').getContext('2d');
         let colors = getThemeColors();
 
+        const monthlyData = <?= json_encode($monthlyData ?? []) ?>;
+        const labels = monthlyData.map(item => item.month);
+        const data = monthlyData.map(item => parseFloat(item.amount));
+
         const expenseChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'March', 'April', 'May'],
+                labels: labels,
                 datasets: [{
-                    label: 'Budget',
-                    data: [0, 12, 38, 30, 32],
+                    label: 'Expenses',
+                    data: data,
                     borderColor: '#d946ef',
                     backgroundColor: 'rgba(217, 70, 239, 0.1)',
                     borderWidth: 3,
@@ -375,7 +455,7 @@
                         },
                         callbacks: {
                             label: function(context) {
-                                return 'Budget: ' + context.parsed.y;
+                                return 'Expenses: ₱' + context.parsed.y.toFixed(2);
                             }
                         }
                     }
@@ -383,14 +463,15 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 40,
                         ticks: {
-                            stepSize: 10,
                             font: {
                                 family: 'Poppins',
                                 size: 12
                             },
-                            color: colors.text
+                            color: colors.text,
+                            callback: function(value) {
+                                return '₱' + value;
+                            }
                         },
                         grid: {
                             color: colors.grid,
@@ -432,6 +513,23 @@
                 expenseChart.update();
             }
         });
+
+        // Date filter functionality
+        const fromDateInput = document.getElementById('from-date');
+        const toDateInput = document.getElementById('to-date');
+
+        function applyDateFilter() {
+            const fromDate = fromDateInput.value;
+            const toDate = toDateInput.value;
+
+            if (fromDate && toDate) {
+                window.location.href = `<?= base_url('report') ?>?start_date=${fromDate}&end_date=${toDate}`;
+            }
+        }
+
+        // Apply filter when dates change
+        fromDateInput.addEventListener('change', applyDateFilter);
+        toDateInput.addEventListener('change', applyDateFilter);
     </script>
 </body>
 

@@ -7,21 +7,19 @@ use CodeIgniter\Model;
 class UserModel extends Model
 {
     protected $table = 'users';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'UserID';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
-        'email',
-        'password',
-        'full_name',
-        'created_at',
-        'updated_at'
+        'Email',
+        'Username',
+        'Password'
     ];
 
     // Dates
-    protected $useTimestamps = true;
+    protected $useTimestamps = false;
     protected $dateFormat = 'datetime';
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
@@ -29,17 +27,22 @@ class UserModel extends Model
 
     // Validation
     protected $validationRules = [
-        'email' => 'required|valid_email|is_unique[users.email]',
-        'password' => 'required|min_length[6]',
-        'full_name' => 'permit_empty|min_length[3]'
+        'Email' => 'required|valid_email|is_unique[users.Email]',
+        'Username' => 'required|min_length[3]|is_unique[users.Username]',
+        'Password' => 'required|min_length[6]'
     ];
     protected $validationMessages = [
-        'email' => [
+        'Email' => [
             'required' => 'Email is required',
             'valid_email' => 'Please provide a valid email',
             'is_unique' => 'This email is already registered'
         ],
-        'password' => [
+        'Username' => [
+            'required' => 'Username is required',
+            'min_length' => 'Username must be at least 3 characters',
+            'is_unique' => 'This username is already taken'
+        ],
+        'Password' => [
             'required' => 'Password is required',
             'min_length' => 'Password must be at least 6 characters'
         ]

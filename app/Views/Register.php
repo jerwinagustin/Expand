@@ -134,10 +134,10 @@
             <?php endif; ?>
 
             <div class="mb-3">
-                <label for="fullname" class="form-label">NAME</label>
-                <input type="text" class="form-control" id="fullname" name="fullname" placeholder="Username" value="<?= old('fullname') ?>" required>
-                <?php if (session()->getFlashdata('errors')['fullname'] ?? false): ?>
-                    <div class="text-danger small mt-1"><?= session()->getFlashdata('errors')['fullname'] ?></div>
+                <label for="username" class="form-label">USERNAME</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Username" value="<?= old('username') ?>" required>
+                <?php if (session()->getFlashdata('errors')['username'] ?? false): ?>
+                    <div class="text-danger small mt-1"><?= session()->getFlashdata('errors')['username'] ?></div>
                 <?php endif; ?>
             </div>
 
