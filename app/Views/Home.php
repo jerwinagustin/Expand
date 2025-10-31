@@ -13,6 +13,30 @@
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
     <style>
+        :root {
+            /* Light mode colors */
+            --bg-primary: #f1f1f1;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a152e;
+            --text-secondary: #666;
+            --text-muted: #333;
+            --border-color: #ccc;
+            --input-bg: transparent;
+            --shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        body.dark-mode {
+            /* Dark mode colors */
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b8b8b8;
+            --text-muted: #9d9d9d;
+            --border-color: #2d3748;
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -24,23 +48,26 @@
             display: flex;
             min-height: 100vh;
             overflow-x: hidden;
-            background-color: #f1f1f1;
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s ease;
         }
 
         /* ===== MAIN CONTENT ===== */
         .main-content {
             flex: 1;
-            background-color: #f1f1f1;
+            background-color: var(--bg-primary);
             padding: 40px 50px;
             margin-left: 267px;
             min-height: 100vh;
+            transition: background-color 0.3s ease;
         }
 
         .main-content h1 {
             font-size: 28px;
-            color: #1a152e;
+            color: var(--text-primary);
             margin-bottom: 30px;
             font-weight: 600;
+            transition: color 0.3s ease;
         }
 
         /* ===== WALLET SECTION ===== */
@@ -60,12 +87,13 @@
         }
 
         .wallet-card {
-            background-color: #fff;
+            background-color: var(--bg-secondary);
             border-radius: 15px;
             padding: 40px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 10px var(--shadow);
             width: 100%;
             margin-bottom: 20px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .balance-section {
@@ -85,8 +113,9 @@
         .balance-content h2 {
             font-size: 48px;
             margin: 0;
-            color: #222;
+            color: var(--text-primary);
             font-weight: 600;
+            transition: color 0.3s ease;
         }
 
         .balance-content p {
@@ -106,21 +135,25 @@
             align-items: center;
             gap: 10px;
             font-size: 14px;
-            color: #333;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
         }
 
         .date-range i {
             font-size: 18px;
-            color: #666;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
         }
 
         .date-range input[type="date"] {
-            border: 1px solid #ccc;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 6px 12px;
             font-size: 14px;
             font-family: 'Poppins', sans-serif;
-            background-color: transparent;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
         .date-range input[type="date"]:focus {
@@ -130,9 +163,10 @@
 
         .date-range span {
             font-weight: 500;
-            color: #666;
+            color: var(--text-secondary);
             text-transform: uppercase;
             font-size: 12px;
+            transition: color 0.3s ease;
         }
 
         /* ===== RESPONSIVE ===== */
@@ -194,6 +228,16 @@
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Load theme on page load
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        })();
+    </script>
 </body>
 
 </html>

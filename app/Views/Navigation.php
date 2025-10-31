@@ -49,11 +49,39 @@ if (empty($segment)) {
 </div>
 
 <style>
+    :root {
+        /* Light mode sidebar */
+        --sidebar-bg: #2b2639;
+        --sidebar-text: white;
+        --sidebar-text-muted: #b8b8b8;
+        --sidebar-hover-bg: rgba(255, 255, 255, 0.05);
+        --sidebar-active-bg: #f0f0f5;
+        --sidebar-active-text: #d946ef;
+        --sidebar-border: rgba(255, 255, 255, 0.1);
+        --profile-icon: #e0e0e0;
+        --profile-text: #ffffff;
+        --profile-email: #9d9d9d;
+    }
+
+    body.dark-mode {
+        /* Dark mode sidebar */
+        --sidebar-bg: #0f0f1e;
+        --sidebar-text: #e0e0e0;
+        --sidebar-text-muted: #8a8a8a;
+        --sidebar-hover-bg: rgba(255, 255, 255, 0.1);
+        --sidebar-active-bg: #1a1a2e;
+        --sidebar-active-text: #bb86fc;
+        --sidebar-border: rgba(255, 255, 255, 0.05);
+        --profile-icon: #bb86fc;
+        --profile-text: #e0e0e0;
+        --profile-email: #8a8a8a;
+    }
+
     /* ===== SIDEBAR ===== */
     .sidebar {
         width: 267px;
-        background-color: #2b2639;
-        color: white;
+        background-color: var(--sidebar-bg);
+        color: var(--sidebar-text);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -63,6 +91,7 @@ if (empty($segment)) {
         bottom: 0;
         height: 100vh;
         z-index: 1000;
+        transition: background-color 0.3s ease;
     }
 
     .sidebar-top {
@@ -79,8 +108,9 @@ if (empty($segment)) {
 
     .profile i {
         font-size: 48px;
-        color: #e0e0e0;
+        color: var(--profile-icon);
         flex-shrink: 0;
+        transition: color 0.3s ease;
     }
 
     .profile div {
@@ -93,19 +123,21 @@ if (empty($segment)) {
         font-size: 16px;
         margin: 0;
         font-weight: 600;
-        color: #ffffff;
+        color: var(--profile-text);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        transition: color 0.3s ease;
     }
 
     .profile p {
         font-size: 12px;
-        color: #9d9d9d;
+        color: var(--profile-email);
         margin: 2px 0 0 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        transition: color 0.3s ease;
     }
 
     .menu {
@@ -122,7 +154,7 @@ if (empty($segment)) {
         display: flex;
         align-items: center;
         gap: 14px;
-        color: #b8b8b8;
+        color: var(--sidebar-text-muted);
         text-decoration: none;
         padding: 14px 18px;
         border-radius: 14px;
@@ -133,13 +165,13 @@ if (empty($segment)) {
     }
 
     .menu a:hover {
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: var(--sidebar-hover-bg);
         color: #e0e0e0;
     }
 
     .menu a.active {
-        background-color: #f0f0f5;
-        color: #d946ef;
+        background-color: var(--sidebar-active-bg);
+        color: var(--sidebar-active-text);
         font-weight: 500;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         padding: 16px 22px;
@@ -147,7 +179,7 @@ if (empty($segment)) {
     }
 
     .menu a.active i {
-        color: #d946ef;
+        color: var(--sidebar-active-text);
         transform: scale(1.1);
     }
 
@@ -160,15 +192,16 @@ if (empty($segment)) {
 
     .sidebar-bottom {
         padding: 15px 20px 30px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid var(--sidebar-border);
         font-size: 14px;
+        transition: border-color 0.3s ease;
     }
 
     .sidebar-bottom a {
         display: flex;
         align-items: center;
         gap: 12px;
-        color: #b8b8b8;
+        color: var(--sidebar-text-muted);
         text-decoration: none;
         margin-bottom: 8px;
         padding: 10px 12px;
@@ -179,6 +212,11 @@ if (empty($segment)) {
     .sidebar-bottom a:hover {
         color: #d946ef;
         background-color: rgba(217, 70, 239, 0.1);
+    }
+
+    .sidebar-bottom a.active {
+        background-color: var(--sidebar-active-bg);
+        color: var(--sidebar-active-text);
     }
 
     .sidebar-bottom a i {
@@ -242,6 +280,14 @@ if (empty($segment)) {
 </style>
 
 <script>
+    // Load theme on page load
+    (function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    })();
+
     // Add click animation effect
     document.addEventListener('DOMContentLoaded', function() {
         const menuLinks = document.querySelectorAll('.menu a');

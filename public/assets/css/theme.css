@@ -1,0 +1,159 @@
+/**
+ * Theme Styles for Expenses Tracker
+ * CSS Variables for Light and Dark Mode
+ */
+
+:root {
+  /* Light mode colors */
+  --bg-primary: #f1f1f1;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f8f9fa;
+  --text-primary: #1a152e;
+  --text-secondary: #666;
+  --text-muted: #333;
+  --text-light: #999;
+  --border-color: #ccc;
+  --border-light: #e0e0e0;
+  --input-bg: transparent;
+  --card-bg: #ffffff;
+  --shadow: rgba(0, 0, 0, 0.08);
+  --shadow-hover: rgba(0, 0, 0, 0.15);
+
+  /* Sidebar colors */
+  --sidebar-bg: #2b2639;
+  --sidebar-text: white;
+  --sidebar-text-muted: #b8b8b8;
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.05);
+  --sidebar-active-bg: #f0f0f5;
+  --sidebar-active-text: #d946ef;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --profile-icon: #e0e0e0;
+  --profile-text: #ffffff;
+  --profile-email: #9d9d9d;
+
+  /* Accent colors (same for both themes) */
+  --accent-primary: #d946ef;
+  --accent-secondary: #9c4fff;
+  --accent-gradient: linear-gradient(135deg, #d94fff, #9c4fff);
+}
+
+body.dark-mode {
+  /* Dark mode colors */
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-tertiary: #0f0f1e;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b8b8b8;
+  --text-muted: #9d9d9d;
+  --text-light: #6a6a6a;
+  --border-color: #2d3748;
+  --border-light: #374151;
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --card-bg: #16213e;
+  --shadow: rgba(0, 0, 0, 0.3);
+  --shadow-hover: rgba(0, 0, 0, 0.5);
+
+  /* Dark mode sidebar */
+  --sidebar-bg: #0f0f1e;
+  --sidebar-text: #e0e0e0;
+  --sidebar-text-muted: #8a8a8a;
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-active-bg: #1a1a2e;
+  --sidebar-active-text: #bb86fc;
+  --sidebar-border: rgba(255, 255, 255, 0.05);
+  --profile-icon: #bb86fc;
+  --profile-text: #e0e0e0;
+  --profile-email: #8a8a8a;
+}
+
+/* Base transition for smooth theme switching */
+body,
+.main-content,
+.wallet-card,
+.settings-card,
+.transaction-card,
+.expense-card,
+.report-card,
+.sidebar {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Apply theme colors to common elements */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.main-content {
+  background-color: var(--bg-primary);
+}
+
+.main-content h1,
+.main-content h2,
+.main-content h3 {
+  color: var(--text-primary);
+}
+
+.card,
+.wallet-card,
+.settings-card,
+.transaction-card,
+.expense-card,
+.report-card {
+  background-color: var(--bg-secondary);
+  box-shadow: 0 2px 10px var(--shadow);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+textarea,
+select {
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent-primary);
+}
+
+/* Table support for dark mode */
+table {
+  color: var(--text-primary);
+}
+
+table thead {
+  background-color: var(--bg-tertiary);
+}
+
+table tbody tr {
+  border-color: var(--border-light);
+}
+
+table tbody tr:hover {
+  background-color: var(--bg-tertiary);
+}
+
+/* Button adjustments for dark mode */
+.btn-outline-primary,
+.btn-outline-secondary {
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}

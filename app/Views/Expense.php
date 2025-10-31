@@ -13,6 +13,32 @@
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
     <style>
+        :root {
+            /* Light mode colors */
+            --bg-primary: #f1f1f1;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f5f5f5;
+            --text-primary: #222;
+            --text-secondary: #666;
+            --text-muted: #333;
+            --border-color: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --shadow-hover: rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode {
+            /* Dark mode colors */
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0d1421;
+            --text-primary: #f0f0f0;
+            --text-secondary: #c0c0c0;
+            --text-muted: #a8a8a8;
+            --border-color: #2d3748;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --shadow-hover: rgba(0, 0, 0, 0.5);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -24,16 +50,18 @@
             display: flex;
             min-height: 100vh;
             overflow-x: hidden;
-            background-color: #f1f1f1;
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s ease;
         }
 
         /* ===== MAIN CONTENT ===== */
         .main-content {
             flex: 1;
-            background-color: #f1f1f1;
+            background-color: var(--bg-primary);
             padding: 40px 50px;
             margin-left: 267px;
             min-height: 100vh;
+            transition: background-color 0.3s ease;
         }
 
         .top-header {
@@ -54,16 +82,18 @@
         .balance-tran .line {
             width: 4px;
             height: 50px;
-            background-color: #222;
+            background-color: var(--text-primary);
             border-radius: 2px;
             margin-top: 5px;
+            transition: background-color 0.3s ease;
         }
 
         .balance-tran .content h2 {
             font-size: 24px;
             margin: 0;
-            color: #222;
+            color: var(--text-primary);
             font-weight: 700;
+            transition: color 0.3s ease;
         }
 
         .balance-tran .content p {
@@ -77,9 +107,10 @@
 
         .top-header h1 {
             font-size: 24px;
-            color: #222;
+            color: var(--text-primary);
             margin: 0;
             font-weight: 600;
+            transition: color 0.3s ease;
         }
 
         /* ===== WALLET SECTION ===== */
@@ -100,12 +131,13 @@
         }
 
         .wallet-card {
-            background-color: #fff;
+            background-color: var(--bg-secondary);
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 10px var(--shadow);
             width: 100%;
             margin-bottom: 20px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         /* ===== EXPENSE ITEMS ===== */
@@ -121,8 +153,8 @@
             justify-content: space-between;
             padding: 20px;
             border-radius: 12px;
-            background-color: #fff;
-            border: 1px solid #e0e0e0;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
             position: relative;
         }
@@ -134,7 +166,7 @@
         }
 
         .expense-item:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px var(--shadow-hover);
         }
 
         .expense-left {
@@ -152,18 +184,27 @@
             align-items: center;
             justify-content: center;
             font-size: 28px;
-            background-color: #f5f5f5;
+            background-color: var(--bg-tertiary);
+            transition: background-color 0.3s ease;
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .expense-icon {
+            border: 1px solid var(--border-color);
         }
 
         .expense-item.active .expense-icon {
             background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
         }
 
         .expense-details h3 {
             font-size: 16px;
             font-weight: 600;
             margin: 0 0 4px 0;
-            color: #222;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
         }
 
         .expense-item.active .expense-details h3,
@@ -174,7 +215,8 @@
         .expense-details p {
             font-size: 13px;
             margin: 0;
-            color: #666;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
         }
 
         .expense-menu {
@@ -186,11 +228,12 @@
             border: none;
             font-size: 24px;
             cursor: pointer;
-            color: #666;
+            color: var(--text-secondary);
             padding: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: color 0.3s ease;
         }
 
         .expense-item.active .menu-dots {
@@ -209,13 +252,15 @@
             position: absolute;
             top: 35px;
             right: 0;
-            background: white;
+            background: var(--bg-secondary);
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px var(--shadow-hover);
             padding: 8px 0;
             min-width: 120px;
             z-index: 1000;
             display: none;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease;
         }
 
         .dropdown-menu-custom.show {
@@ -225,14 +270,14 @@
         .dropdown-menu-custom a {
             display: block;
             padding: 10px 20px;
-            color: #333;
+            color: var(--text-primary);
             text-decoration: none;
             font-size: 14px;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
         }
 
         .dropdown-menu-custom a:hover {
-            background-color: #f5f5f5;
+            background-color: var(--bg-tertiary);
         }
 
         .top-right-menu {
@@ -246,12 +291,13 @@
             border: none;
             font-size: 24px;
             cursor: pointer;
-            color: #666;
+            color: var(--text-secondary);
             padding: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
             transform: rotate(90deg);
+            transition: color 0.3s ease;
         }
 
         .menu-btn:hover {
@@ -259,19 +305,20 @@
         }
 
         .add-btn-visible {
-            background-color: #e0e0e0;
+            background-color: var(--bg-tertiary);
             border: none;
             padding: 10px 25px;
             border-radius: 10px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            color: #333;
-            transition: background 0.3s;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
         }
 
         .add-btn-visible:hover {
-            background-color: #d0d0d0;
+            background-color: var(--border-color);
         }
 
         .add-btn {
@@ -282,13 +329,13 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            color: #333;
-            transition: background 0.3s;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
             text-decoration: none;
         }
 
         .add-btn:hover {
-            background-color: #f5f5f5;
+            background-color: var(--bg-tertiary);
         }
 
         /* ===== DATE RANGE ===== */
@@ -301,21 +348,25 @@
             align-items: center;
             gap: 10px;
             font-size: 14px;
-            color: #333;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
         }
 
         .date-range i {
             font-size: 18px;
-            color: #666;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
         }
 
         .date-range input[type="date"] {
-            border: 1px solid #ccc;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 6px 12px;
             font-size: 14px;
             font-family: 'Poppins', sans-serif;
-            background-color: transparent;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
         .date-range input[type="date"]:focus {
@@ -325,9 +376,10 @@
 
         .date-range span {
             font-weight: 500;
-            color: #666;
+            color: var(--text-secondary);
             text-transform: uppercase;
             font-size: 12px;
+            transition: color 0.3s ease;
         }
 
         /* ===== RESPONSIVE ===== */
@@ -529,6 +581,16 @@
                 menu.classList.remove('show');
             });
         });
+    </script>
+
+    <script>
+        // Load theme on page load
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        })();
     </script>
 </body>
 
